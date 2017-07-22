@@ -66,33 +66,32 @@ layoutData = getLayoutData();
  */
 void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 
-	for (int i =0; i<layoutData->nPanels; i++){
-		frames[i].panelId =layoutData->panels[i].panelId;
-		if (counter%3==0){
-			frames[i].r=100;
-			frames[i].g=0;
-			frames[i].b=0;
+	*nFrames = 0;
 
+	FrameSlice_t **frameSlices = NULL;
+	int nFrameSlices;
+	getFrameSlicesFromLayoutForTriangle(layoutData, frameSlices, nFrameSlices, 60);
+
+	int nPopulatedFrameSlices = 0;
+	for (int i = 0; i < nFrameSlices; i++) {
+		if (frameSlices[i]->panelIds.size() > 0) {
+			nPopulatedFrameSlices++;
 		}
-
-		else if (counter%3==1){
-			frames[i].r=0;
-			frames[i].g=100;
-			frames[i].b=0;
-		}
-
-		else if (counter%3==2){
-			frames[i].r=0;
-			frames[i].g=0;
-			frames[i].b=100;
-		}
-		frames[i].transTime = 10;
-
 	}
 
-	*sleepTime=30;
-	counter++;
-	*nFrames=layoutData->nPanels;
+	int iPopulatedSlice = 0;
+	for (int i = 0; i < nFrameSlices; i++) {
+		if (frameSlices[i]->panelIds.size() > 0) {
+			for (int j = 0; j < frameSlices[i]->panelIds.size(); j++) {
+				frames[iPopulatedSlice].panelId = frameSlices[i]->panelIds[j];
+				frames[iPopulatedSlice].r = 255 - (iPopulatedSlice * 255 / nPopulatedFrameSlices);
+				frames[iPopulatedSlice].g = 0;
+				frames[iPopulatedSlice].b = iPopulatedSlice * 255 / nPopulatedFrameSlices;
+				(*nFrames)++;
+			}
+			iPopulatedSlice++;
+		}
+	}
 }
 
 /**
