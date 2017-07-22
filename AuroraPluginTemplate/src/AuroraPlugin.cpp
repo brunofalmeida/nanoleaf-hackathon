@@ -53,9 +53,7 @@ int angleRotate = 60; //rotate layout to 'horizontal'
 void initPlugin(){
 	layoutData = getLayoutData();
 	getFrameSlicesFromLayoutForTriangle(layoutData, &frameSlices, &nFrameSlices, rotateAuroraPanels(layoutData, &angleRotate));
-enableEnergy();
-enableFft(N_FFT_BINS);
-enableBeatFeatures();
+	enableFft(N_FFT_BINS);
 }
 
 /**
@@ -63,7 +61,7 @@ enableBeatFeatures();
  * @param ind: value we wish to index into keys with, 9 + n, where 9 corresponds to index of A_4 and n is number of
  * half steps from A_4
  */
-int wrapAround(int ind){
+int wrapAroundIndex(int ind){
 	if (ind < 0) {
 		return 12 - ind;
 	}
@@ -90,8 +88,6 @@ int wrapAround(int ind){
  */
 void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 
-
-
 	uint8_t* fftBins = getFftBins();
 	int sum = 0, sumAverage = 0;
 	for (int i = 0; i < N_FFT_BINS; i++){
@@ -110,25 +106,26 @@ void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 		printf("%.2lf Hz\n", fn);
 	}
 
-	int populatedFrameSlices = 0;
-	int** keys[12];
+	int* keys[nFrameSlices]; // there should be 12
+
 	for (int i = 0; i < nFrameSlices; i++){
-		if(frameSlices[i].panelIds.size() > 0){
-			populatedFrameSlices++;
+		if (frameSlices[i].panelIds.size() > 0) {
+			keys[i] = &frameSlices[i].panelIds[0];
 		}
 	}
 
-	// assuming each frame slice size 1
-	// assuming 12 frame slices
-
-	// create array of pointers to frameslices
-
 	int n = (int)round( 12 * (log2(fn) - log2(f0)) ) % 12; //calculate the number of half steps away from reference f0 mod 12
 
-	//*keys[wrapAround(9 + n)] // set this key on A is 9th key
+	frames[0].panelId = 255;
+	frames[0].r = 0;
+	frames[0].g = 0;
+	frames[0].b = 0;
 
+	frames[1].panelId = *keys[wrapAroundIndex(9 + n)]]; // set this key on A is 9th key
+	frames[1].r = 255;
+
+	*nFrames = 2;
 }
-//void clearScr(){printf("\e[1;1H\e[2J");}
 
 /**
  * @description: called once when the plugin is being closed.
