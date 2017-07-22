@@ -14,8 +14,6 @@
    limitations under the License.
  */
 
-
-
 #include "AuroraPlugin.h"
 #include "LayoutProcessingUtils.h"
 #include "ColorUtils.h"
@@ -23,6 +21,7 @@
 #include "PluginFeatures.h"
 #include "Logger.h"
 #include <algorithm>
+#include <math.h>
 using namespace std;
 #define N_FFT_BINS 32
 #ifdef __cplusplus
@@ -37,12 +36,12 @@ extern "C" {
 }
 #endif
 
-int counter =0;
-FrameSlice_t *frameSlices = NULL;
-int nFrameSlices=0;
-LayoutData *layoutData=NULL;
-int angleRotate = 60;
-int rotate;
+#define f0 440 // frequency of A about middle C (A_4)
+
+FrameSlice_t* frameSlices = NULL;
+int nFrameSlices = 0;
+LayoutData* layoutData = NULL;
+int angleRotate = 60; //rotate layout to 'horizontal'
 /**
  * @description: Initialize the plugin. Called once, when the plugin is loaded.
  * This function can be used to enable rhythm or advanced features,
@@ -58,6 +57,21 @@ enableEnergy();
 enableFft(N_FFT_BINS);
 enableBeatFeatures();
 }
+
+/**
+ * @description: returns index within length of list
+ * @param ind: value we wish to index into keys with, 9 + n, where 9 corresponds to index of A_4 and n is number of
+ * half steps from A_4
+ */
+int wrapAround(int ind){
+	if (ind < 0) {
+		return 12 - ind;
+	}
+	else {
+		return ind % 12;
+	}
+}
+
 
 /**
  * @description: this the 'main' function that gives a frame to the Aurora to display onto the panels
@@ -76,39 +90,42 @@ enableBeatFeatures();
  */
 void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 
-//printf("%d\n",(-14)%12);
-	//printf("%d\n", getEnergy());
-  frames[0].panelId=255;
- frames[0].r=min(100+getEnergy()*155/5000, 255);
-	//frames[0].r=510;
-	frames[0].g=0;
-	frames[0].b=0;
 
-	*nFrames=1;
-	//*sleepTime=10;
-	//*sleepTime=30;
+
 	uint8_t* fftBins = getFftBins();
-	int sum=0, sumAverage=0;
-	for (int i =0; i<N_FFT_BINS; i++){
-		sum = sum+fftBins[i];
-		int average = i*fftBins[i];
-		sumAverage = average+sumAverage;
-	 //printf("%d\n",fftBins[i]);
-		// for (int j = 0; j < fftBins[i]; j++) {
-		// 	printf("*");
-		// }
-		// printf("\n");
+	int sum = 0, sumAverage = 0;
+	for (int i = 0; i < N_FFT_BINS; i++){
+		sum = sum + fftBins[i];
+		int average = i * fftBins[i];
+		sumAverage = average + sumAverage;
 	}
-	//printf("\e[1;1H\e[2J");
+
+	double fn = 0;
+
 	if (sumAverage!=0&&sum!=0){
 		printf("%d %d\n", sumAverage,sum);
 		double averageIndex = (double)sumAverage/sum;
 		printf("%.2lf\n", averageIndex);
-		double frequency = averageIndex*5500/32;
-		printf("%.2lf Hz\n", frequency);
+		fn = averageIndex*5500/32;
+		printf("%.2lf Hz\n", fn);
 	}
 
-	// printf("\n\n");
+	int populatedFrameSlices = 0;
+	int** keys[12];
+	for (int i = 0; i < nFrameSlices; i++){
+		if(frameSlices[i].panelIds.size() > 0){
+			populatedFrameSlices++;
+		}
+	}
+
+	// assuming each frame slice size 1
+	// assuming 12 frame slices
+
+	// create array of pointers to frameslices
+
+	int n = (int)round( 12 * (log2(fn) - log2(f0)) ) % 12; //calculate the number of half steps away from reference f0 mod 12
+
+	//*keys[wrapAround(9 + n)] // set this key on A is 9th key
 
 }
 //void clearScr(){printf("\e[1;1H\e[2J");}
