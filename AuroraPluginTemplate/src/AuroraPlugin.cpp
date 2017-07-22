@@ -20,10 +20,7 @@
 #include "DataManager.h"
 #include "PluginFeatures.h"
 #include "Logger.h"
-#include <algorithm>
-#include <math.h>
-using namespace std;
-#define N_FFT_BINS 32
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -36,12 +33,6 @@ extern "C" {
 }
 #endif
 
-#define f0 440 // frequency of A about middle C (A_4)
-
-FrameSlice_t* frameSlices = NULL;
-int nFrameSlices = 0;
-LayoutData* layoutData = NULL;
-int angleRotate = 60; //rotate layout to 'horizontal'
 /**
  * @description: Initialize the plugin. Called once, when the plugin is loaded.
  * This function can be used to enable rhythm or advanced features,
@@ -51,25 +42,8 @@ int angleRotate = 60; //rotate layout to 'horizontal'
  *
  */
 void initPlugin(){
-	layoutData = getLayoutData();
-	getFrameSlicesFromLayoutForTriangle(layoutData, &frameSlices, &nFrameSlices, rotateAuroraPanels(layoutData, &angleRotate));
-	enableFft(N_FFT_BINS);
-}
 
-/**
- * @description: returns index within length of list
- * @param ind: value we wish to index into keys with, 9 + n, where 9 corresponds to index of A_4 and n is number of
- * half steps from A_4
- */
-int wrapAroundIndex(int ind){
-	if (ind < 0) {
-		return 12 - ind;
-	}
-	else {
-		return ind % 12;
-	}
 }
-
 
 /**
  * @description: this the 'main' function that gives a frame to the Aurora to display onto the panels
@@ -88,43 +62,6 @@ int wrapAroundIndex(int ind){
  */
 void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 
-	uint8_t* fftBins = getFftBins();
-	int sum = 0, sumAverage = 0;
-	for (int i = 0; i < N_FFT_BINS; i++){
-		sum = sum + fftBins[i];
-		int average = i * fftBins[i];
-		sumAverage = average + sumAverage;
-	}
-
-	double fn = 0;
-
-	if (sumAverage!=0&&sum!=0){
-		printf("%d %d\n", sumAverage,sum);
-		double averageIndex = (double)sumAverage/sum;
-		printf("%.2lf\n", averageIndex);
-		fn = averageIndex*5500/32;
-		printf("%.2lf Hz\n", fn);
-	}
-
-	int* keys[nFrameSlices]; // there should be 12
-
-	for (int i = 0; i < nFrameSlices; i++){
-		if (frameSlices[i].panelIds.size() > 0) {
-			keys[i] = &frameSlices[i].panelIds[0];
-		}
-	}
-
-	int n = (int)round( 12 * (log2(fn) - log2(f0)) ) % 12; //calculate the number of half steps away from reference f0 mod 12
-
-	frames[0].panelId = 255;
-	frames[0].r = 0;
-	frames[0].g = 0;
-	frames[0].b = 0;
-
-	frames[1].panelId = *keys[wrapAroundIndex(9 + n)]]; // set this key on A is 9th key
-	frames[1].r = 255;
-
-	*nFrames = 2;
 }
 
 /**
@@ -133,5 +70,4 @@ void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
  */
 void pluginCleanup(){
 	//do deallocation here
-	freeFrameSlices(frameSlices);
 }
