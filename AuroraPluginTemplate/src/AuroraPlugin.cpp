@@ -22,7 +22,9 @@
 #include "DataManager.h"
 #include "PluginFeatures.h"
 #include "Logger.h"
-
+#include <algorithm>
+using namespace std;
+#define N_FFT_BINS 32
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,6 +55,8 @@ void initPlugin(){
 	layoutData = getLayoutData();
 	getFrameSlicesFromLayoutForTriangle(layoutData, &frameSlices, &nFrameSlices, rotateAuroraPanels(layoutData, &angleRotate));
 enableEnergy();
+enableFft(N_FFT_BINS);
+enableBeatFeatures();
 }
 
 /**
@@ -72,31 +76,42 @@ enableEnergy();
  */
 void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 
-	*nFrames = 0;
+//printf("%d\n",(-14)%12);
+	//printf("%d\n", getEnergy());
+  frames[0].panelId=255;
+ frames[0].r=min(100+getEnergy()*155/5000, 255);
+	//frames[0].r=510;
+	frames[0].g=0;
+	frames[0].b=0;
 
-
-	int nPopulatedFrameSlices = 0;
-	for (int i = 0; i < nFrameSlices; i++) {
-		if (frameSlices[i].panelIds.size() > 0) {
-			nPopulatedFrameSlices++;
-		}
+	*nFrames=1;
+	//*sleepTime=10;
+	//*sleepTime=30;
+	uint8_t* fftBins = getFftBins();
+	int sum=0, sumAverage=0;
+	for (int i =0; i<N_FFT_BINS; i++){
+		sum = sum+fftBins[i];
+		int average = i*fftBins[i];
+		sumAverage = average+sumAverage;
+	 //printf("%d\n",fftBins[i]);
+		// for (int j = 0; j < fftBins[i]; j++) {
+		// 	printf("*");
+		// }
+		// printf("\n");
+	}
+	//printf("\e[1;1H\e[2J");
+	if (sumAverage!=0&&sum!=0){
+		printf("%d %d\n", sumAverage,sum);
+		double averageIndex = (double)sumAverage/sum;
+		printf("%.2lf\n", averageIndex);
+		double frequency = averageIndex*5500/32;
+		printf("%.2lf Hz\n", frequency);
 	}
 
-	int iPopulatedSlice = 0;
-	for (int i = 0; i < nFrameSlices; i++) {
-		if (frameSlices[i].panelIds.size() > 0) {
-			for (int j = 0; j < frameSlices[i].panelIds.size(); j++) {
-				frames[*nFrames].panelId = frameSlices[i].panelIds[j];
-				frames[*nFrames].r = 255 - (iPopulatedSlice * 255 / nPopulatedFrameSlices);
-				frames[*nFrames].g = 0;
-				frames[*nFrames].b = iPopulatedSlice * 255 / nPopulatedFrameSlices;
-				(*nFrames)++;
-			}
-			iPopulatedSlice++;
-		}
-	}
+	// printf("\n\n");
 
 }
+//void clearScr(){printf("\e[1;1H\e[2J");}
 
 /**
  * @description: called once when the plugin is being closed.
@@ -104,4 +119,5 @@ void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
  */
 void pluginCleanup(){
 	//do deallocation here
+	freeFrameSlices(frameSlices);
 }
