@@ -36,7 +36,11 @@ extern "C" {
 #endif
 
 int counter =0;
+FrameSlice_t *frameSlices = NULL;
+int nFrameSlices=0;
 LayoutData *layoutData=NULL;
+int angleRotate = 60;
+int rotate;
 /**
  * @description: Initialize the plugin. Called once, when the plugin is loaded.
  * This function can be used to enable rhythm or advanced features,
@@ -46,7 +50,9 @@ LayoutData *layoutData=NULL;
  *
  */
 void initPlugin(){
-layoutData = getLayoutData();
+	layoutData = getLayoutData();
+	getFrameSlicesFromLayoutForTriangle(layoutData, &frameSlices, &nFrameSlices, rotateAuroraPanels(layoutData, &angleRotate));
+enableEnergy();
 }
 
 /**
@@ -68,30 +74,28 @@ void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 
 	*nFrames = 0;
 
-	FrameSlice_t **frameSlices = NULL;
-	int nFrameSlices;
-	getFrameSlicesFromLayoutForTriangle(layoutData, frameSlices, nFrameSlices, 60);
 
 	int nPopulatedFrameSlices = 0;
 	for (int i = 0; i < nFrameSlices; i++) {
-		if (frameSlices[i]->panelIds.size() > 0) {
+		if (frameSlices[i].panelIds.size() > 0) {
 			nPopulatedFrameSlices++;
 		}
 	}
 
 	int iPopulatedSlice = 0;
 	for (int i = 0; i < nFrameSlices; i++) {
-		if (frameSlices[i]->panelIds.size() > 0) {
-			for (int j = 0; j < frameSlices[i]->panelIds.size(); j++) {
-				frames[iPopulatedSlice].panelId = frameSlices[i]->panelIds[j];
-				frames[iPopulatedSlice].r = 255 - (iPopulatedSlice * 255 / nPopulatedFrameSlices);
-				frames[iPopulatedSlice].g = 0;
-				frames[iPopulatedSlice].b = iPopulatedSlice * 255 / nPopulatedFrameSlices;
+		if (frameSlices[i].panelIds.size() > 0) {
+			for (int j = 0; j < frameSlices[i].panelIds.size(); j++) {
+				frames[*nFrames].panelId = frameSlices[i].panelIds[j];
+				frames[*nFrames].r = 255 - (iPopulatedSlice * 255 / nPopulatedFrameSlices);
+				frames[*nFrames].g = 0;
+				frames[*nFrames].b = iPopulatedSlice * 255 / nPopulatedFrameSlices;
 				(*nFrames)++;
 			}
 			iPopulatedSlice++;
 		}
 	}
+
 }
 
 /**
