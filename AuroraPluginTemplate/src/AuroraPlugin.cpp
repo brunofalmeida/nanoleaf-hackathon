@@ -130,7 +130,7 @@ void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 	}
 	if (getIsBeat()) {
 		printf("beat\n");
-		initSource(numSources, rand()%256, rand()%256, rand()%256, 5);
+		initSource(numSources, rand()%256, rand()%256, rand()%256, 7);
 	}
 
 	for (int iPanel = 0; iPanel < layoutData->nPanels; iPanel++) {
@@ -162,13 +162,23 @@ void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 	}
 uint16_t energyValue = getEnergy();
 printf("energy %d\n", energyValue);
-if (energyValue>500 &&energyValue<700){
-	initSource(numSources, 255,51,184, 2);
-}
-else if (energyValue>700&&energyValue<1200){
-	initSource(numSources, 255, 236,51, 2);
-}
 
+if (energyValue>2000 && energyValue<4000){
+	initSource(numSources,255,181,51,2);
+}
+else if (energyValue>0&&energyValue<10)
+{
+	initSource(numSources,51,224,225,2);
+}
+else if (energyValue<20&&energyValue>10){
+	initSource(numSources,175,51,255,2);
+}
+else if (energyValue>20&&energyValue<100){
+	initSource(numSources,167,78,23,2);
+}
+else if (energyValue>100&&energyValue<2000){
+	initSource(numSources,134,98,28,2);
+}
 }
 
 /**
