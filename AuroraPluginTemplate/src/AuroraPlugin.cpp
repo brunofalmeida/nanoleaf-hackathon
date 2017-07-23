@@ -164,20 +164,20 @@ uint16_t energyValue = getEnergy();
 printf("energy %d\n", energyValue);
 
 if (energyValue>2000 && energyValue<4000){
-	initSource(numSources,255,181,51,2);
+	initSource(numSources,255,181,51,2); //orange
 }
 else if (energyValue>0&&energyValue<10)
 {
-	initSource(numSources,51,224,225,2);
+	initSource(numSources,51,224,225,2); //sky blue
 }
 else if (energyValue<20&&energyValue>10){
-	initSource(numSources,175,51,255,2);
+	initSource(numSources,175,51,255,2); //purple
 }
 else if (energyValue>20&&energyValue<100){
-	initSource(numSources,167,78,23,2);
+	initSource(numSources,167,78,23,2); //dark orange
 }
 else if (energyValue>100&&energyValue<2000){
-	initSource(numSources,134,98,28,2);
+	initSource(numSources,134,98,28,2); //dark yellow
 }
 }
 
