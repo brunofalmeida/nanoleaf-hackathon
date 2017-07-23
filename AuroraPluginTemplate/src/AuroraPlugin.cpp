@@ -64,9 +64,9 @@ void initSource(int index) {
 		sources[index].y = panel->shape->getCentroid().y;
 
 		// TODO adjust
-		sources[index].v = 1;
-		sources[index].rad = 1;
-		sources[index].lifetime = 5;
+		sources[index].v = 30;
+		sources[index].rad = 50;
+		sources[index].lifetime = INT_MAX;
 
 		sources[index].r = 255;	// TODO - different based on frequency
 		sources[index].g = 0;
@@ -86,6 +86,7 @@ void propagateSource(Source *source) {
 	// TODO - check macro for transition time
 	source->rad += source->v * 0.05;
 	source->lifetime --;
+	printf("%.2lf %d\n", source->rad, source->lifetime);
 }
 
 
@@ -122,9 +123,10 @@ void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 	// 	printf("Beat\n");
 	// 	initSource(numSources);
 	// }
-	char in;
-	scanf("%c\n", &in);
-	if (in == 'b'){
+	// char in;
+	// scanf("%c\n", &in);
+	// if (in == 'b'){
+	if (getIsBeat()) {
 		printf("beat\n");
 		initSource(numSources);
 	}
