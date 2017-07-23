@@ -64,9 +64,9 @@ void initSource(int index) {
 		sources[index].y = panel->shape->getCentroid().y;
 
 		// TODO adjust
-		sources[index].v = 30;
+		sources[index].v = 1000;
 		sources[index].rad = 50;
-		sources[index].lifetime = INT_MAX;
+		sources[index].lifetime = 1000;
 
 		sources[index].r = 255;	// TODO - different based on frequency
 		sources[index].g = 0;
@@ -86,7 +86,7 @@ void propagateSource(Source *source) {
 	// TODO - check macro for transition time
 	source->rad += source->v * 0.05;
 	source->lifetime --;
-	printf("%.2lf %d\n", source->rad, source->lifetime);
+	printf("%.2lf %lf\n", source->rad, source->lifetime);
 }
 
 
@@ -136,12 +136,20 @@ void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 		frames[iPanel].r = 0;
 		frames[iPanel].g = 0;
 		frames[iPanel].b = 0;
+		frames[iPanel].transTime=10;
 		for (int iSource = 0; iSource < MAX_SOURCES; iSource++) {
 			double dist = Point::distance(layoutData->panels[iPanel].shape->getCentroid(), Point(sources[iSource].x, sources[iSource].y));
-			if (dist <= sources[iSource].rad){
-				// function of (remaining) lifetime, dist
-				// inv. prop to dist, prop to (remaining) lifetime
-				frames[iPanel].r = fmax(0, 255 - sources[iSource].rad/sources[iSource].lifetime);
+			// if (dist <= sources[iSource].rad){
+			// 	// function of (remaining) lifetime, dist
+			// 	// inv. prop to dist, prop to (remaining) lifetime
+			// 	frames[iPanel].r = fmax(0, 255 - (0.5*sources[iSource].rad - dist));
+			// }
+			if (abs(dist - sources[iSource].rad) <= 50) {
+				frames[iPanel].r=255;
+				frames[iPanel].transTime = 0;
+			} else {
+				frames[iPanel].r = 0;
+				frames[iPanel].transTime = 3;
 			}
 		}
 	}
