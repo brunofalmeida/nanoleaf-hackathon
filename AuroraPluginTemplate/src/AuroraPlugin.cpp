@@ -143,7 +143,7 @@ void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 		frames[iPanel].g = 0;
 		frames[iPanel].b = 0;
 		frames[iPanel].transTime=5;
-		for (int iSource = 0; iSource < MAX_SOURCES; iSource++) {
+		for (int iSource = 0; iSource < numSources; iSource++) {
 			double dist = Point::distance(layoutData->panels[iPanel].shape->getCentroid(), Point(sources[iSource].x, sources[iSource].y));
 			// if (dist <= sources[iSource].rad){
 			// 	// function of (remaining) lifetime, dist
