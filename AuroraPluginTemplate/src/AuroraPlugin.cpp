@@ -68,9 +68,9 @@ void initSource(int index) {
 		sources[index].rad = 50;
 		sources[index].lifetime = 10;
 
-		sources[index].r = 255;	// TODO - different based on frequency
-		sources[index].g = 0;
-		sources[index].b = 0;
+		sources[index].r = rand() % 256;	// TODO - different based on frequency
+		sources[index].g = rand() % 256;
+		sources[index].b = rand() % 256;
 
 		numSources++;
 	}
@@ -119,13 +119,6 @@ void initPlugin() {
  * @param sleepTime: specify interval after which this function is called again, NULL if sound visualization plugin
  */
 void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
-	// if (getIsBeat()) {
-	// 	printf("Beat\n");
-	// 	initSource(numSources);
-	// }
-	// char in;
-	// scanf("%c\n", &in);
-	// if (in == 'b'){
 
 	for (int i =0; i<numSources;i++){
 		if (sources[i].lifetime<0){
@@ -145,16 +138,12 @@ void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 		frames[iPanel].transTime=5;
 		for (int iSource = 0; iSource < numSources; iSource++) {
 			double dist = Point::distance(layoutData->panels[iPanel].shape->getCentroid(), Point(sources[iSource].x, sources[iSource].y));
-			// if (dist <= sources[iSource].rad){
-			// 	// function of (remaining) lifetime, dist
-			// 	// inv. prop to dist, prop to (remaining) lifetime
-			// 	frames[iPanel].r = fmax(0, 255 - (0.5*sources[iSource].rad - dist));
-			// }
 			if (abs(dist - sources[iSource].rad) <= 50) {
-				frames[iPanel].r=255;
+				frames[iPanel].r = sources[iSource].r;
+				frames[iPanel].g = sources[iSource].g;
+				frames[iPanel].b = sources[iSource].b;
 				frames[iPanel].transTime = 0;
 			} else {
-				frames[iPanel].r = 0;
 				frames[iPanel].transTime = 3;
 			}
 		}
