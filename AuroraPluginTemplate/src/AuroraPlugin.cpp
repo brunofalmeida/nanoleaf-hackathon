@@ -22,6 +22,7 @@
 #include "Logger.h"
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,10 +40,11 @@ extern "C" {
 #define ADJACENT_PANEL_DISTANCE 86.599995
 
 typedef struct Source {
-	double x, y;
-	double vx, vy;
-	int r, g, b;
-	double lifetime = INT_MAX;	// MAX_INT?
+	double x, y;                // origin, const
+	double v;                   // velocity, const
+	double rad;                 // radius of explosion, var
+	double lifetime;	          // lifetime of source, var
+	int r, g, b;                // red, green, blue
 } Source;
 
 int numSources = 0;
@@ -61,27 +63,17 @@ void initSource(int index) {
 		sources[index].x = panel->shape->getCentroid().x;
 		sources[index].y = panel->shape->getCentroid().y;
 
-		// TODO - find constant for scaling tempo
-		// double magnitude = getTempo();
-		double magnitude = 10;
-		double direction = (rand() % 360) * M_PI / 180.0;
-		sources[index].vx = magnitude * cos(direction);
-		sources[index].vy = magnitude * sin(direction);
-		// sources[index].r = rand() % 256;	// TODO - better way?
-		// sources[index].g = rand() % 256;
-		// sources[index].b = rand() % 256;
+		// TODO adjust
+		sources[index].v = 1;
+		sources[index].rad = 1;
+		sources[index].lifetime = 5;
 
-		sources[index].r = 255;	// TODO - better way?
+		sources[index].r = 255;	// TODO - different based on frequency
 		sources[index].g = 0;
 		sources[index].b = 0;
 
-		printf("%lf %lf %lf %lf %d %d %d\n",
-			sources[index].x, sources[index].y, sources[index].vx, sources[index].vy,
-			sources[index].r, sources[index].g, sources[index].b);
-
 		numSources++;
 	}
-	// TODO - delete function
 }
 
 void deleteSource(int index) {
@@ -92,8 +84,8 @@ void deleteSource(int index) {
 
 void propagateSource(Source *source) {
 	// TODO - check macro for transition time
-	source->x += source->vx * 0.05/1e0;
-	source->y += source->vy * 0.05/1e0;
+	source->rad += source->v * 0.05;
+	source->lifetime --;
 }
 
 
@@ -126,8 +118,14 @@ void initPlugin() {
  * @param sleepTime: specify interval after which this function is called again, NULL if sound visualization plugin
  */
 void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
-	if (getIsBeat()) {
-		printf("Beat\n");
+	// if (getIsBeat()) {
+	// 	printf("Beat\n");
+	// 	initSource(numSources);
+	// }
+	char in;
+	scanf("%c\n", &in);
+	if (in == 'b'){
+		printf("beat\n");
 		initSource(numSources);
 	}
 
@@ -137,11 +135,12 @@ void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 		frames[iPanel].g = 0;
 		frames[iPanel].b = 0;
 		for (int iSource = 0; iSource < MAX_SOURCES; iSource++) {
-			double distance = Point::distance(layoutData->panels[iPanel].shape->getCentroid(), Point(sources[iSource].x, sources[iSource].y));
-			double multiplier = 3 * ADJACENT_PANEL_DISTANCE - distance;
-			frames[iPanel].r += sources[iSource].r * multiplier;
-			frames[iPanel].g += sources[iSource].g * multiplier;
-			frames[iPanel].b += sources[iSource].b * multiplier;
+			double dist = Point::distance(layoutData->panels[iPanel].shape->getCentroid(), Point(sources[iSource].x, sources[iSource].y));
+			if (dist <= sources[iSource].rad){
+				// function of (remaining) lifetime, dist
+				// inv. prop to dist, prop to (remaining) lifetime
+				frames[iPanel].r = fmax(0, 255 - sources[iSource].rad/sources[iSource].lifetime);
+			}
 		}
 	}
 
@@ -149,13 +148,6 @@ void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 
 	for (int i = 0; i < numSources; i++) {
 		propagateSource(&sources[i]);
-		printf("%lf %lf\n", sources[i].x, sources[i].y);
-	}
-
-	for (int i = numSources - 1; i >= 0; i--) {
-		if (pointInsideWhichPanel(layoutData, Point(sources[i].x, sources[i].y)) == -1) {
-			deleteSource(i);
-		}
 	}
 }
 
