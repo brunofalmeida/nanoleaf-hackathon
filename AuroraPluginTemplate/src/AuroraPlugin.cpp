@@ -66,7 +66,7 @@ void initSource(int index) {
 		// TODO adjust
 		sources[index].v = 1000;
 		sources[index].rad = 50;
-		sources[index].lifetime = 1000;
+		sources[index].lifetime = 10;
 
 		sources[index].r = 255;	// TODO - different based on frequency
 		sources[index].g = 0;
@@ -86,7 +86,7 @@ void propagateSource(Source *source) {
 	// TODO - check macro for transition time
 	source->rad += source->v * 0.05;
 	source->lifetime --;
-	printf("%.2lf %lf\n", source->rad, source->lifetime);
+	printf("%.2lf %.1lf\n", source->rad, source->lifetime);
 }
 
 
@@ -126,6 +126,12 @@ void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 	// char in;
 	// scanf("%c\n", &in);
 	// if (in == 'b'){
+
+	for (int i =0; i<numSources;i++){
+		if (sources[i].lifetime<0){
+			deleteSource(i);
+		}
+	}
 	if (getIsBeat()) {
 		printf("beat\n");
 		initSource(numSources);
@@ -136,7 +142,7 @@ void getPluginFrame(Frame_t* frames, int* nFrames, int* sleepTime){
 		frames[iPanel].r = 0;
 		frames[iPanel].g = 0;
 		frames[iPanel].b = 0;
-		frames[iPanel].transTime=10;
+		frames[iPanel].transTime=5;
 		for (int iSource = 0; iSource < MAX_SOURCES; iSource++) {
 			double dist = Point::distance(layoutData->panels[iPanel].shape->getCentroid(), Point(sources[iSource].x, sources[iSource].y));
 			// if (dist <= sources[iSource].rad){
