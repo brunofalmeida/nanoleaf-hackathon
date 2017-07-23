@@ -36,7 +36,7 @@ extern "C" {
 }
 #endif
 
-#define MAX_SOURCES 1
+#define MAX_SOURCES 2
 #define ADJACENT_PANEL_DISTANCE 86.599995
 
 typedef struct Source {
