@@ -1,5 +1,14 @@
-# nanoleaf hackathon!!
+# Nanoleaf Aurora Rhythm Hackathon
 
-A plugin written in C++ for the Nanoleaf Aurora. From Aurora Rhythm Hackathon at UofT.
+A plugin created for the [Nanoleaf Aurora Rhythm Hackathon](https://nanoleaf.me/en-ca/consumer-led-lighting/join-beta-program/aurora-rhythm-hackathon-signup/) at the University of Toronto.
 
-Created with [Joy Liu](https://github.com/Joyliu290) and [Bruno Almeida](https://github.com/brunofalmeida).
+The plugin is written in C++ for the Nanoleaf Aurora, a set of modular lighting panels. It responds to music and creates patterns on the Aurora.
+
+
+## Team
+
+[Bruno Almeida](https://github.com/brunofalmeida)
+
+[Joy Liu](https://github.com/Joyliu290)
+
+[Jacob Kelly](https://github.com/jacobjinkelly)
