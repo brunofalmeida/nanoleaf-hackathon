@@ -1,8 +1,8 @@
-# Nanoleaf Aurora Rhythm Hackathon
+# Nanoleaf Aurora Hackathon
 
-A plugin created for the [Nanoleaf Aurora Rhythm Hackathon](https://nanoleaf.me/en-ca/consumer-led-lighting/join-beta-program/aurora-rhythm-hackathon-signup/) at the University of Toronto (July 21-23, 2017).
+A C++ plugin for the Nanoleaf Aurora (smart modular lighting panels) that responds to music by creating patterns.
 
-The plugin is written in C++ for the Nanoleaf Aurora, a set of modular lighting panels. It responds to music and creates patterns on the Aurora.
+This plugin was created for the [Nanoleaf Aurora Rhythm Hackathon](https://nanoleaf.me/en-ca/consumer-led-lighting/join-beta-program/aurora-rhythm-hackathon-signup/) at the University of Toronto (July 21-23, 2017).
 
 
 ## Team
